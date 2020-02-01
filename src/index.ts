@@ -4,13 +4,18 @@ import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { PlayerResolver } from "./graphql/PlayerResolver";
-import { config } from "./ormconfig";
 import { createConnection } from "typeorm";
 
 (async () => {
     const app: express.Application = express();
     try {
-        await createConnection(config);
+        await createConnection({
+            url: process.env.DATABASE_URL,
+            type: 'postgres',
+            entities: [__dirname + "/models/**/{*.ts, *.js}"],
+            synchronize: true,
+            extra: { ssl: true, },
+        });
     } catch (error) {
         console.log("Error connecting to database.", error);
     }
